@@ -1,0 +1,476 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Platform Video Downloader & Splitter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .platform-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .platform-youtube { background: #ff0000; color: white; }
+        .platform-netflix { background: #e50914; color: white; }
+        .platform-amazon { background: #00a8e1; color: white; }
+        .platform-disney { background: #113ccf; color: white; }
+        .platform-hulu { background: #1ce783; color: black; }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .clips-container {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .clip-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .clip-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .clip-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .download-btn {
+            background: #28a745;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .cleanup-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .video-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .cookies-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .file-upload {
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .clips-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Multi-Platform Video Downloader & Splitter</h1>
+        <p class="subtitle">Download from YouTube, Netflix, Amazon Prime, Disney+, Hulu & more | Create TikTok-ready clips</p>
+        
+        <div class="cookies-section" id="cookiesSection">
+            <strong>🔐 Authentication Required</strong>
+            <p id="authInstructions">This platform requires authentication. Please upload your cookies.txt file:</p>
+            <div class="file-upload">
+                <input type="file" id="cookiesFile" accept=".txt">
+                <button onclick="uploadCookies()" style="margin-top: 10px;">Upload Cookies</button>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>Video URL (YouTube, Netflix, Amazon Prime, etc.):</label>
+            <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=... or https://www.netflix.com/watch/..." />
+        </div>
+        
+        <button onclick="detectPlatform()">Detect Platform</button>
+        
+        <div class="input-group" style="margin-top: 20px;">
+            <label>Number of Clips (1-10):</label>
+            <input type="number" id="numClips" min="1" max="10" value="3" />
+        </div>
+        
+        <div class="input-group">
+            <label>Custom Clip Duration (seconds, optional):</label>
+            <input type="number" id="clipDuration" placeholder="Leave empty for auto (3-5 minutes)" />
+        </div>
+        
+        <button onclick="downloadAndSplit()">Download & Split Video</button>
+        
+        <div class="loader" id="loader"></div>
+        <div class="status" id="status"></div>
+        <div class="video-info" id="videoInfo"></div>
+        
+        <div id="clipsContainer" class="clips-container"></div>
+        
+        <button onclick="cleanup()" class="cleanup-btn" style="display: none;" id="cleanupBtn">Clean Up Files</button>
+    </div>
+    
+    <script>
+        let currentVideoPath = null;
+        let currentClips = [];
+        let currentPlatform = null;
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function detectPlatform() {
+            const url = document.getElementById('videoUrl').value;
+            
+            if (!url) {
+                showStatus('Please enter a URL', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/detect_platform', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showStatus(`Error: ${data.error}`, 'error');
+                    return;
+                }
+                
+                currentPlatform = data.platform;
+                showStatus(`Platform detected: ${data.platform.toUpperCase()}`, 'success');
+                
+                if (data.requires_auth) {
+                    document.getElementById('cookiesSection').style.display = 'block';
+                    document.getElementById('authInstructions').innerHTML = data.instructions;
+                } else {
+                    document.getElementById('cookiesSection').style.display = 'none';
+                }
+                
+                if (data.formats && data.formats.length > 0) {
+                    console.log('Available formats:', data.formats);
+                }
+                
+            } catch (error) {
+                showStatus(`Detection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function uploadCookies() {
+            const fileInput = document.getElementById('cookiesFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('Please select a cookies.txt file', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('cookies_file', file);
+            
+            try {
+                const response = await fetch('/upload_cookies', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('Cookies uploaded successfully!', 'success');
+                    document.getElementById('cookiesSection').style.display = 'none';
+                } else {
+                    showStatus(`Upload failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Upload failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function downloadAndSplit() {
+            const url = document.getElementById('videoUrl').value;
+            const numClips = parseInt(document.getElementById('numClips').value);
+            const clipDuration = document.getElementById('clipDuration').value;
+            
+            if (!url) {
+                showStatus('Please enter a URL', 'error');
+                return;
+            }
+            
+            const loader = document.getElementById('loader');
+            const downloadBtn = event.target;
+            
+            loader.style.display = 'block';
+            downloadBtn.disabled = true;
+            
+            try {
+                // Download video
+                showStatus('Downloading video... This may take a few minutes.', 'info');
+                const downloadResponse = await fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url: url,
+                        format_code: 'best'
+                    })
+                });
+                
+                const downloadData = await downloadResponse.json();
+                
+                if (!downloadData.success) {
+                    throw new Error(downloadData.error);
+                }
+                
+                currentVideoPath = downloadData.video_path;
+                showStatus(`✅ Video "${downloadData.title}" downloaded from ${downloadData.platform}!`, 'success');
+                
+                // Display video info
+                const videoInfoDiv = document.getElementById('videoInfo');
+                videoInfoDiv.innerHTML = `<strong>📹 Video:</strong> ${downloadData.title}<br><strong>🎬 Platform:</strong> ${downloadData.platform.toUpperCase()}`;
+                videoInfoDiv.style.display = 'block';
+                
+                // Split video
+                showStatus('Splitting video into clips...', 'info');
+                const splitResponse = await fetch('/split', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        video_path: currentVideoPath,
+                        num_clips: numClips,
+                        clip_duration: clipDuration ? parseFloat(clipDuration) : null
+                    })
+                });
+                
+                const splitData = await splitResponse.json();
+                
+                if (!splitData.success) {
+                    throw new Error(splitData.error);
+                }
+                
+                currentClips = splitData.clips;
+                displayClips(currentClips);
+                showStatus(`✅ Successfully created ${currentClips.length} clips!`, 'success');
+                document.getElementById('cleanupBtn').style.display = 'block';
+                
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                loader.style.display = 'none';
+                downloadBtn.disabled = false;
+            }
+        }
+        
+        function displayClips(clips) {
+            const container = document.getElementById('clipsContainer');
+            container.innerHTML = '<h2>📱 Your TikTok-Ready Clips</h2>';
+            
+            clips.forEach((clip, index) => {
+                const durationDisplay = clip.duration_minutes || `${Math.floor(clip.duration / 60)}:${Math.floor(clip.duration % 60).toString().padStart(2, '0')}`;
+                
+                const clipCard = document.createElement('div');
+                clipCard.className = 'clip-card';
+                clipCard.innerHTML = `
+                    <h3>Clip ${index + 1}</h3>
+                    <div class="clip-info">
+                        📊 Duration: ${durationDisplay} minutes<br>
+                        ⏱️ From ${Math.floor(clip.start / 60)}:${Math.floor(clip.start % 60).toString().padStart(2, '0')} to 
+                        ${Math.floor(clip.end / 60)}:${Math.floor(clip.end % 60).toString().padStart(2, '0')}
+                    </div>
+                    <button class="download-btn" onclick="downloadClip('${clip.filename}')">⬇️ Download Clip ${index + 1}</button>
+                `;
+                container.appendChild(clipCard);
+            });
+        }
+        
+        async function downloadClip(filename) {
+            try {
+                window.location.href = `/download_clip/${filename}`;
+                showStatus('Download started!', 'success');
+            } catch (error) {
+                showStatus('Download failed', 'error');
+            }
+        }
+        
+        async function cleanup() {
+            if (confirm('Are you sure you want to delete all downloaded files?')) {
+                try {
+                    const response = await fetch('/cleanup', { method: 'POST' });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showStatus('Cleanup completed successfully!', 'success');
+                        document.getElementById('clipsContainer').innerHTML = '';
+                        document.getElementById('videoInfo').style.display = 'none';
+                        document.getElementById('cleanupBtn').style.display = 'none';
+                        currentVideoPath = null;
+                        currentClips = [];
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showStatus(`Cleanup failed: ${error.message}`, 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
