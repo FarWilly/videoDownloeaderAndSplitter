@@ -40,8 +40,8 @@
         
         .platform-badge {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
             margin-left: 10px;
@@ -52,6 +52,7 @@
         .platform-amazon { background: #00a8e1; color: white; }
         .platform-disney { background: #113ccf; color: white; }
         .platform-hulu { background: #1ce783; color: black; }
+        .platform-hbomax { background: #6a1b9a; color: white; }
         
         .input-group {
             margin-bottom: 20px;
@@ -65,7 +66,8 @@
         }
         
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
@@ -74,7 +76,7 @@
             transition: border-color 0.3s;
         }
         
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -89,6 +91,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
         }
         
         button:hover {
@@ -101,41 +104,93 @@
             cursor: not-allowed;
         }
         
-        .status {
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
             margin: 20px 0;
-            padding: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-item {
+            padding: 12px;
+            margin: 8px 0;
             border-radius: 8px;
-            display: none;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
         }
         
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .status-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
         }
         
-        .status.warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+        .status-icon.pending {
+            background: #e0e0e0;
+            color: #666;
         }
         
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .status-icon.processing {
+            background: #667eea;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-icon.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-icon.error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
         }
         
         .clips-container {
             margin-top: 30px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
         
@@ -144,6 +199,12 @@
             border-radius: 12px;
             padding: 15px;
             border: 1px solid #e0e0e0;
+            transition: transform 0.2s;
+        }
+        
+        .clip-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .clip-card h3 {
@@ -157,15 +218,10 @@
             margin-bottom: 10px;
         }
         
-        .download-btn {
+        .download-clip-btn {
             background: #28a745;
-            margin-top: 10px;
             width: 100%;
-        }
-        
-        .cleanup-btn {
-            background: #dc3545;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         
         .loader {
@@ -184,17 +240,21 @@
             100% { transform: rotate(360deg); }
         }
         
-        .video-info {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
+        .video-preview {
             margin: 20px 0;
             display: none;
         }
         
+        video {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            background: #000;
+        }
+        
         .cookies-section {
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 20px;
@@ -203,6 +263,11 @@
         
         .file-upload {
             margin-top: 10px;
+        }
+        
+        .format-selector {
+            margin: 10px 0;
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -219,68 +284,137 @@
 <body>
     <div class="container">
         <h1>🎬 Multi-Platform Video Downloader & Splitter</h1>
-        <p class="subtitle">Download from YouTube, Netflix, Amazon Prime, Disney+, Hulu & more | Create TikTok-ready clips</p>
+        <p class="subtitle">Download from YouTube, Netflix, Amazon Prime, Disney+, Hulu & more | Process entirely on your device</p>
         
         <div class="cookies-section" id="cookiesSection">
             <strong>🔐 Authentication Required</strong>
             <p id="authInstructions">This platform requires authentication. Please upload your cookies.txt file:</p>
             <div class="file-upload">
                 <input type="file" id="cookiesFile" accept=".txt">
-                <button onclick="uploadCookies()" style="margin-top: 10px;">Upload Cookies</button>
+                <button onclick="uploadCookies()" style="margin-top: 10px;">📁 Upload Cookies</button>
             </div>
         </div>
         
         <div class="input-group">
-            <label>Video URL (YouTube, Netflix, Amazon Prime, etc.):</label>
+            <label>Video URL:</label>
             <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=... or https://www.netflix.com/watch/..." />
         </div>
         
-        <button onclick="detectPlatform()">Detect Platform</button>
+        <button onclick="detectPlatform()" id="detectBtn">🔍 Detect Platform</button>
         
-        <div class="input-group" style="margin-top: 20px;">
+        <div id="platformInfo" style="margin: 10px 0; display: none;">
+            <span id="platformBadge"></span>
+            <span id="platformMessage"></span>
+        </div>
+        
+        <div class="format-selector" id="formatSelector">
+            <label>Select Quality:</label>
+            <select id="formatSelect"></select>
+        </div>
+        
+        <div class="input-group">
             <label>Number of Clips (1-10):</label>
             <input type="number" id="numClips" min="1" max="10" value="3" />
         </div>
         
         <div class="input-group">
-            <label>Custom Clip Duration (seconds, optional):</label>
-            <input type="number" id="clipDuration" placeholder="Leave empty for auto (3-5 minutes)" />
+            <label>Clip Duration (seconds, optional):</label>
+            <input type="number" id="clipDuration" placeholder="Leave empty for auto (180-300 seconds)" />
         </div>
         
-        <button onclick="downloadAndSplit()">Download & Split Video</button>
+        <div style="text-align: center;">
+            <button onclick="startProcess()" id="startBtn" disabled>🚀 Start Download & Split</button>
+        </div>
         
         <div class="loader" id="loader"></div>
-        <div class="status" id="status"></div>
-        <div class="video-info" id="videoInfo"></div>
+        
+        <div class="status-card" id="statusCard" style="display: none;">
+            <h3>📊 Processing Status</h3>
+            <div id="statusList"></div>
+        </div>
+        
+        <div class="video-preview" id="videoPreview">
+            <h3>🎥 Video Preview</h3>
+            <video id="previewVideo" controls></video>
+        </div>
         
         <div id="clipsContainer" class="clips-container"></div>
-        
-        <button onclick="cleanup()" class="cleanup-btn" style="display: none;" id="cleanupBtn">Clean Up Files</button>
     </div>
     
     <script>
-        let currentVideoPath = null;
-        let currentClips = [];
+        let videoData = null;
+        let clips = [];
+        let statusItems = [];
         let currentPlatform = null;
+        let cookiesUploaded = false;
         
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
-            statusDiv.style.display = 'block';
+        // Status tracking system
+        function addStatusItem(step, message) {
+            const statusId = `status_${Date.now()}_${step}`;
+            statusItems.push({
+                id: statusId,
+                step: step,
+                message: message,
+                status: 'pending',
+                timestamp: new Date()
+            });
+            updateStatusDisplay();
+            return statusId;
+        }
+        
+        function updateStatusItem(statusId, newStatus, progress = null, details = null) {
+            const item = statusItems.find(i => i.id === statusId);
+            if (item) {
+                item.status = newStatus;
+                if (progress !== null) item.progress = progress;
+                if (details) item.details = details;
+                updateStatusDisplay();
+            }
+        }
+        
+        function updateStatusDisplay() {
+            const container = document.getElementById('statusList');
+            const statusCard = document.getElementById('statusCard');
             
-            setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 5000);
+            if (statusItems.length === 0) {
+                statusCard.style.display = 'none';
+                return;
+            }
+            
+            statusCard.style.display = 'block';
+            
+            container.innerHTML = statusItems.map(item => `
+                <div class="status-item">
+                    <div class="status-icon ${item.status}">
+                        ${item.status === 'completed' ? '✓' : item.status === 'error' ? '✗' : item.status === 'processing' ? '⏳' : '○'}
+                    </div>
+                    <div style="flex: 1;">
+                        <strong>${item.message}</strong>
+                        ${item.details ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">${item.details}</div>` : ''}
+                        ${item.progress !== undefined ? `
+                            <div class="progress-bar" style="margin-top: 8px;">
+                                <div class="progress-fill" style="width: ${item.progress}%"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Auto-scroll to bottom
+            statusCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         
         async function detectPlatform() {
             const url = document.getElementById('videoUrl').value;
             
             if (!url) {
-                showStatus('Please enter a URL', 'error');
+                alert('Please enter a URL');
                 return;
             }
+            
+            const detectBtn = document.getElementById('detectBtn');
+            detectBtn.disabled = true;
+            detectBtn.textContent = '🔄 Detecting...';
             
             try {
                 const response = await fetch('/detect_platform', {
@@ -292,26 +426,46 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    showStatus(`Error: ${data.error}`, 'error');
-                    return;
+                    throw new Error(data.error);
                 }
                 
                 currentPlatform = data.platform;
-                showStatus(`Platform detected: ${data.platform.toUpperCase()}`, 'success');
                 
+                // Show platform info
+                const platformInfo = document.getElementById('platformInfo');
+                const platformBadge = document.getElementById('platformBadge');
+                const platformMessage = document.getElementById('platformMessage');
+                
+                platformBadge.className = `platform-badge platform-${data.platform}`;
+                platformBadge.textContent = data.platform.toUpperCase();
+                platformMessage.textContent = data.message || '';
+                platformInfo.style.display = 'block';
+                
+                // Handle authentication
                 if (data.requires_auth) {
                     document.getElementById('cookiesSection').style.display = 'block';
                     document.getElementById('authInstructions').innerHTML = data.instructions;
+                    document.getElementById('startBtn').disabled = true;
                 } else {
                     document.getElementById('cookiesSection').style.display = 'none';
+                    document.getElementById('startBtn').disabled = false;
                 }
                 
+                // Show format selector if formats available
                 if (data.formats && data.formats.length > 0) {
-                    console.log('Available formats:', data.formats);
+                    const formatSelect = document.getElementById('formatSelect');
+                    formatSelect.innerHTML = '<option value="best">Best Quality</option>';
+                    data.formats.forEach(format => {
+                        formatSelect.innerHTML += `<option value="${format.code}">${format.info}</option>`;
+                    });
+                    document.getElementById('formatSelector').style.display = 'block';
                 }
                 
             } catch (error) {
-                showStatus(`Detection failed: ${error.message}`, 'error');
+                alert(`Detection failed: ${error.message}`);
+            } finally {
+                detectBtn.disabled = false;
+                detectBtn.textContent = '🔍 Detect Platform';
             }
         }
         
@@ -320,7 +474,7 @@
             const file = fileInput.files[0];
             
             if (!file) {
-                showStatus('Please select a cookies.txt file', 'error');
+                alert('Please select a cookies.txt file');
                 return;
             }
             
@@ -336,41 +490,74 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showStatus('Cookies uploaded successfully!', 'success');
+                    cookiesUploaded = true;
+                    alert('Cookies uploaded successfully!');
                     document.getElementById('cookiesSection').style.display = 'none';
+                    document.getElementById('startBtn').disabled = false;
                 } else {
-                    showStatus(`Upload failed: ${data.error}`, 'error');
+                    alert(`Upload failed: ${data.error}`);
                 }
             } catch (error) {
-                showStatus(`Upload failed: ${error.message}`, 'error');
+                alert(`Upload failed: ${error.message}`);
             }
         }
         
-        async function downloadAndSplit() {
+        async function startProcess() {
             const url = document.getElementById('videoUrl').value;
             const numClips = parseInt(document.getElementById('numClips').value);
             const clipDuration = document.getElementById('clipDuration').value;
+            const formatCode = document.getElementById('formatSelect').value;
             
             if (!url) {
-                showStatus('Please enter a URL', 'error');
+                alert('Please enter a video URL');
                 return;
             }
             
-            const loader = document.getElementById('loader');
-            const downloadBtn = event.target;
+            // Clear previous data
+            statusItems = [];
+            clips = [];
+            document.getElementById('clipsContainer').innerHTML = '';
+            document.getElementById('videoPreview').style.display = 'none';
             
+            const startBtn = document.getElementById('startBtn');
+            const loader = document.getElementById('loader');
+            
+            startBtn.disabled = true;
             loader.style.display = 'block';
-            downloadBtn.disabled = true;
             
             try {
-                // Download video
-                showStatus('Downloading video... This may take a few minutes.', 'info');
-                const downloadResponse = await fetch('/download', {
+                // Step 1: Get video info
+                const infoId = addStatusItem('info', '📡 Fetching video information...');
+                updateStatusItem(infoId, 'processing');
+                
+                const infoResponse = await fetch('/video_info', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         url: url,
-                        format_code: 'best'
+                        platform: currentPlatform
+                    })
+                });
+                
+                const infoData = await infoResponse.json();
+                
+                if (!infoData.success) {
+                    throw new Error(infoData.error);
+                }
+                
+                updateStatusItem(infoId, 'completed', 100, `Title: ${infoData.title.substring(0, 50)}...`);
+                
+                // Step 2: Download video
+                const downloadId = addStatusItem('download', `⬇️ Downloading video from ${currentPlatform.toUpperCase()}...`);
+                updateStatusItem(downloadId, 'processing');
+                
+                const downloadResponse = await fetch('/download_direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url: url,
+                        format_code: formatCode,
+                        platform: currentPlatform
                     })
                 });
                 
@@ -380,96 +567,254 @@
                     throw new Error(downloadData.error);
                 }
                 
-                currentVideoPath = downloadData.video_path;
-                showStatus(`✅ Video "${downloadData.title}" downloaded from ${downloadData.platform}!`, 'success');
+                updateStatusItem(downloadId, 'completed', 100, `Size: ${downloadData.size || 'Unknown'}`);
                 
-                // Display video info
-                const videoInfoDiv = document.getElementById('videoInfo');
-                videoInfoDiv.innerHTML = `<strong>📹 Video:</strong> ${downloadData.title}<br><strong>🎬 Platform:</strong> ${downloadData.platform.toUpperCase()}`;
-                videoInfoDiv.style.display = 'block';
+                videoData = downloadData;
                 
-                // Split video
-                showStatus('Splitting video into clips...', 'info');
-                const splitResponse = await fetch('/split', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        video_path: currentVideoPath,
-                        num_clips: numClips,
-                        clip_duration: clipDuration ? parseFloat(clipDuration) : null
-                    })
-                });
+                // Step 3: Load video preview
+                const previewId = addStatusItem('preview', '🎬 Loading video preview...');
+                updateStatusItem(previewId, 'processing');
                 
-                const splitData = await splitResponse.json();
+                const previewVideo = document.getElementById('previewVideo');
+                previewVideo.src = `/download_temp/${downloadData.filename}`;
+                document.getElementById('videoPreview').style.display = 'block';
                 
-                if (!splitData.success) {
-                    throw new Error(splitData.error);
+                updateStatusItem(previewId, 'completed');
+                
+                // Step 4: Get video duration
+                const durationId = addStatusItem('duration', '⏱️ Analyzing video duration...');
+                updateStatusItem(durationId, 'processing');
+                
+                const duration = await getVideoDuration(`/download_temp/${downloadData.filename}`);
+                
+                updateStatusItem(durationId, 'completed', 100, `Duration: ${formatTime(duration)}`);
+                
+                // Step 5: Calculate clip segments
+                const calculateId = addStatusItem('calculate', '📐 Calculating clip segments...');
+                updateStatusItem(calculateId, 'processing');
+                
+                const segments = calculateSegments(duration, numClips, clipDuration ? parseFloat(clipDuration) : null);
+                
+                updateStatusItem(calculateId, 'completed', 100, `${segments.length} clips to create`);
+                
+                // Step 6: Split video into clips (one by one with progress)
+                for (let i = 0; i < segments.length; i++) {
+                    const segment = segments[i];
+                    const clipId = addStatusItem(`clip_${i+1}`, `✂️ Creating Clip ${i+1}/${segments.length}...`);
+                    updateStatusItem(clipId, 'processing', 0, `${formatTime(segment.start)} - ${formatTime(segment.end)}`);
+                    
+                    try {
+                        // Update progress as we go
+                        for (let progress = 0; progress <= 100; progress += 10) {
+                            await new Promise(resolve => setTimeout(resolve, 50));
+                            updateStatusItem(clipId, 'processing', progress);
+                        }
+                        
+                        const clipBlob = await extractClip(`/download_temp/${downloadData.filename}`, segment.start, segment.end);
+                        
+                        // Create download URL
+                        const clipUrl = URL.createObjectURL(clipBlob);
+                        const safeTitle = downloadData.title.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+                        const clipFilename = `clip_${i+1}_${safeTitle}.mp4`;
+                        
+                        clips.push({
+                            index: i + 1,
+                            url: clipUrl,
+                            filename: clipFilename,
+                            start: segment.start,
+                            end: segment.end,
+                            duration: segment.end - segment.start,
+                            blob: clipBlob
+                        });
+                        
+                        updateStatusItem(clipId, 'completed', 100, `Clip ${i+1} ready! Duration: ${formatTime(segment.end - segment.start)}`);
+                        
+                        // Display clips as they're created
+                        displayClips();
+                        
+                    } catch (error) {
+                        updateStatusItem(clipId, 'error', 0, `Failed: ${error.message}`);
+                        throw new Error(`Failed to create clip ${i+1}: ${error.message}`);
+                    }
                 }
                 
-                currentClips = splitData.clips;
-                displayClips(currentClips);
-                showStatus(`✅ Successfully created ${currentClips.length} clips!`, 'success');
-                document.getElementById('cleanupBtn').style.display = 'block';
+                // Step 7: Clean up
+                const cleanupId = addStatusItem('cleanup', '🧹 Cleaning up temporary files...');
+                updateStatusItem(cleanupId, 'processing');
+                
+                await fetch('/cleanup_temp', { method: 'POST' });
+                
+                updateStatusItem(cleanupId, 'completed');
+                
+                addStatusItem('complete', '✅ All done! Your clips are ready to download!', 'completed');
                 
             } catch (error) {
-                showStatus(`❌ Error: ${error.message}`, 'error');
+                addStatusItem('error', `❌ Error: ${error.message}`, 'error');
+                console.error('Error:', error);
             } finally {
+                startBtn.disabled = false;
                 loader.style.display = 'none';
-                downloadBtn.disabled = false;
             }
         }
         
-        function displayClips(clips) {
+        function getVideoDuration(videoUrl) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                video.addEventListener('loadedmetadata', () => {
+                    resolve(video.duration);
+                });
+                video.addEventListener('error', reject);
+                video.src = videoUrl;
+            });
+        }
+        
+        function calculateSegments(duration, numClips, customDuration = null) {
+            const segments = [];
+            
+            if (customDuration && customDuration > 0) {
+                let start = 0;
+                while (start < duration) {
+                    const end = Math.min(start + customDuration, duration);
+                    segments.push({ start, end });
+                    start = end;
+                }
+            } else {
+                const minDuration = 180;
+                const maxDuration = 300;
+                
+                let clipDuration = duration / numClips;
+                
+                if (clipDuration < minDuration) {
+                    clipDuration = minDuration;
+                    numClips = Math.floor(duration / minDuration);
+                } else if (clipDuration > maxDuration) {
+                    clipDuration = maxDuration;
+                    numClips = Math.ceil(duration / maxDuration);
+                }
+                
+                for (let i = 0; i < numClips; i++) {
+                    const start = i * clipDuration;
+                    const end = Math.min((i + 1) * clipDuration, duration);
+                    if (start < duration) {
+                        segments.push({ start, end });
+                    }
+                }
+            }
+            
+            return segments;
+        }
+        
+        async function extractClip(videoUrl, startTime, endTime) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const mediaRecorderChunks = [];
+                
+                video.crossOrigin = 'anonymous';
+                video.src = videoUrl;
+                
+                video.addEventListener('loadedmetadata', async () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    const stream = canvas.captureStream(30);
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'video/webm;codecs=h264'
+                    });
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            mediaRecorderChunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(mediaRecorderChunks, { type: 'video/mp4' });
+                        resolve(blob);
+                    };
+                    
+                    mediaRecorder.start();
+                    video.currentTime = startTime;
+                    
+                    const processFrame = () => {
+                        if (video.currentTime >= endTime) {
+                            mediaRecorder.stop();
+                            return;
+                        }
+                        
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                        requestAnimationFrame(processFrame);
+                    };
+                    
+                    video.addEventListener('seeked', () => {
+                        video.play();
+                        processFrame();
+                    });
+                    
+                    video.addEventListener('timeupdate', () => {
+                        if (video.currentTime >= endTime) {
+                            video.pause();
+                        }
+                    });
+                });
+                
+                video.addEventListener('error', reject);
+            });
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function displayClips() {
             const container = document.getElementById('clipsContainer');
+            
+            if (clips.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
             container.innerHTML = '<h2>📱 Your TikTok-Ready Clips</h2>';
             
-            clips.forEach((clip, index) => {
-                const durationDisplay = clip.duration_minutes || `${Math.floor(clip.duration / 60)}:${Math.floor(clip.duration % 60).toString().padStart(2, '0')}`;
+            clips.forEach((clip) => {
+                const durationMinutes = Math.floor(clip.duration / 60);
+                const durationSeconds = Math.floor(clip.duration % 60);
                 
                 const clipCard = document.createElement('div');
                 clipCard.className = 'clip-card';
                 clipCard.innerHTML = `
-                    <h3>Clip ${index + 1}</h3>
+                    <h3>🎬 Clip ${clip.index}</h3>
                     <div class="clip-info">
-                        📊 Duration: ${durationDisplay} minutes<br>
-                        ⏱️ From ${Math.floor(clip.start / 60)}:${Math.floor(clip.start % 60).toString().padStart(2, '0')} to 
-                        ${Math.floor(clip.end / 60)}:${Math.floor(clip.end % 60).toString().padStart(2, '0')}
+                        📊 Duration: ${durationMinutes}:${durationSeconds.toString().padStart(2, '0')} minutes<br>
+                        ⏱️ From ${formatTime(clip.start)} to ${formatTime(clip.end)}
                     </div>
-                    <button class="download-btn" onclick="downloadClip('${clip.filename}')">⬇️ Download Clip ${index + 1}</button>
+                    <button class="download-clip-btn" onclick="downloadClip(${clip.index - 1})">
+                        ⬇️ Download Clip ${clip.index}
+                    </button>
                 `;
                 container.appendChild(clipCard);
             });
         }
         
-        async function downloadClip(filename) {
-            try {
-                window.location.href = `/download_clip/${filename}`;
-                showStatus('Download started!', 'success');
-            } catch (error) {
-                showStatus('Download failed', 'error');
+        function downloadClip(index) {
+            const clip = clips[index];
+            if (clip && clip.blob) {
+                const url = URL.createObjectURL(clip.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = clip.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             }
         }
         
-        async function cleanup() {
-            if (confirm('Are you sure you want to delete all downloaded files?')) {
-                try {
-                    const response = await fetch('/cleanup', { method: 'POST' });
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        showStatus('Cleanup completed successfully!', 'success');
-                        document.getElementById('clipsContainer').innerHTML = '';
-                        document.getElementById('videoInfo').style.display = 'none';
-                        document.getElementById('cleanupBtn').style.display = 'none';
-                        currentVideoPath = null;
-                        currentClips = [];
-                    } else {
-                        throw new Error(data.error);
-                    }
-                } catch (error) {
-                    showStatus(`Cleanup failed: ${error.message}`, 'error');
-                }
-            }
+        // Check browser support
+        if (!window.MediaRecorder) {
+            alert('⚠️ Your browser does not support video recording. Please use Chrome, Firefox, or Edge for the best experience.');
         }
     </script>
 </body>
